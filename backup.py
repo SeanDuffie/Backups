@@ -6,6 +6,7 @@ import logging
 import os
 # import shutil
 import zipfile
+from tkinter import filedialog
 
 import logFormat
 
@@ -18,7 +19,11 @@ BACKUP_PATH = f"{DEFAULT_PATH}/backups/"
 logFormat.format_logs(logger_name="BACKUP")
 logger = logging.getLogger("BACKUP")
 
-def backup(target_dir: str, zip_filename: str):
+# def is_changed(path: str):
+    
+#     pass
+
+def backup(zip_filename: str, target_dir: str = None, zip_path: str = None):
     """ Compresses the active directory into a zip archive that can be accessed later.
 
     Args:
@@ -28,18 +33,27 @@ def backup(target_dir: str, zip_filename: str):
     Returns:
         bool: Success?
     """
+    if target_dir is None:
+        target_dir = ACTIVE_PATH
+    if zip_path is None:
+        zip_path = f"{BACKUP_PATH}/{zip_filename}.zip"
+
     # Validity Checks
     assert os.path.isdir(target_dir)
-    assert zip_filename.endswith('.zip')
 
     # Open Zipfile for writing
-    with zipfile.ZipFile(zip_filename, 'w') as zip_file:
+    with zipfile.ZipFile(zip_path, 'w') as zip_file:
         # Iterate over the files in the directory
-        for filename in os.listdir(target_dir):
-            file_path = os.path.join(target_dir, filename)
+        for dirpath, dirnames, filenames in os.listdir(target_dir):
+            for filename in filenames:
+                # print(dirpath, dirnames, filename)
+                local_path = os.path.join(dirpath, filename).replace(zip_path, "")
 
-            # Add each file to the ZIP archive
-            zip_file.write(file_path, filename)
+                # TODO: Fix local directory in zip
+                file_path = os.path.join(target_dir, local_path)
+
+                # Add each file to the ZIP archive
+                zip_file.write(file_path, filename)
 
     logger.info(f"Files compressed into: %s", zip_filename)
 
@@ -66,3 +80,8 @@ def restore(zip_filename: str, target_dir: str):
     logger.info("Files extracted from: %s", zip_filename)
 
     return True
+
+if __name__ == "__main__":
+    # proj = filedialog.askdirectory()
+    name = input("What to name the backup?")
+    backup(name)
