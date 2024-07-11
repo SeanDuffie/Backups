@@ -20,19 +20,26 @@ logFormat.format_logs(logger_name="MCLOG", file_name=logname)
 logger = logging.getLogger("MCLOG")
 logger.info("Logname: %s", logname)
 
-def backup():
-    # Directory containing the files to compress
-    directory = '/path/to/directory'
+def backup(target_dir: str, zip_filename: str):
+    """ Compresses the active directory into a zip archive that can be accessed later.
 
-    # Name of the output ZIP archive
-    zip_filename = 'archive.zip'
+    Args:
+        target_dir (str): Path of directory containing the files to compress
+        destination (str): Path of output ZIP archive
 
-    # Create a new ZIP archive
+    Returns:
+        bool: Success?
+    """
+    # Validity Checks
+    assert os.path.isdir(target_dir)
+    assert zip_filename.endswith('.zip')
+
+    # Open Zipfile for writing
     with zipfile.ZipFile(zip_filename, 'w') as zip_file:
         # Iterate over the files in the directory
-        for filename in os.listdir(directory):
-            file_path = os.path.join(directory, filename)
-            
+        for filename in os.listdir(target_dir):
+            file_path = os.path.join(target_dir, filename)
+
             # Add each file to the ZIP archive
             zip_file.write(file_path, filename)
 
