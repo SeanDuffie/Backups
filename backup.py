@@ -46,3 +46,25 @@ def backup(target_dir: str, zip_filename: str):
     logger.info(f"Files compressed into: %s", zip_filename)
 
     return True
+
+def restore(zip_filename: str, target_dir: str):
+    """ Restores a zip archive to the working directory.
+
+    Args:
+        zip_filename (str): Path and filename of the zipfile archive.
+        target_dir (str): Path where the zip file will be extracted to.
+
+    Returns:
+        bool: Success?
+    """
+    # Validity Checks
+    assert os.path.isdir(target_dir)
+    assert zip_filename.endswith('.zip')
+
+    # Open Zipfile for reading
+    with zipfile.ZipFile(zip_filename, 'r') as zip_file:
+        zip_file.extractall(target_dir)
+
+    logger.info("Files extracted from: %s", zip_filename)
+
+    return True
