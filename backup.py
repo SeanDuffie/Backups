@@ -15,10 +15,8 @@ ACTIVE_PATH = f"{DEFAULT_PATH}/project/"
 BACKUP_PATH = f"{DEFAULT_PATH}/backups/"
 
 ### LOGGING SECTION ###
-logname = ACTIVE_PATH + '/' + 'MCSERVER.log'
-logFormat.format_logs(logger_name="MCLOG", file_name=logname)
-logger = logging.getLogger("MCLOG")
-logger.info("Logname: %s", logname)
+logFormat.format_logs(logger_name="BACKUP")
+logger = logging.getLogger("BACKUP")
 
 def backup(target_dir: str, zip_filename: str):
     """ Compresses the active directory into a zip archive that can be accessed later.
