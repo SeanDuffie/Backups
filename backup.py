@@ -14,6 +14,10 @@ import logFormat
 DEFAULT_PATH = os.path.dirname(__file__)
 ACTIVE_PATH = f"{DEFAULT_PATH}/project/"
 BACKUP_PATH = f"{DEFAULT_PATH}/backups/"
+if not os.path.isdir(ACTIVE_PATH):
+    os.mkdir(ACTIVE_PATH)
+if not os.path.isdir(BACKUP_PATH):
+    os.mkdir(BACKUP_PATH)
 
 ### LOGGING SECTION ###
 logFormat.format_logs(logger_name="BACKUP")
@@ -40,22 +44,22 @@ def backup(zip_filename: str, target_dir: str = None, zip_path: str = None):
 
     # Validity Checks
     assert os.path.isdir(target_dir)
+    assert os.path.isdir(zip_path)
 
     # Open Zipfile for writing
     with zipfile.ZipFile(zip_path, 'w') as zip_file:
         # Iterate over the files in the directory
-        for dirpath, dirnames, filenames in os.listdir(target_dir):
+        for dirpath, _, filenames in os.walk(target_dir):
             for filename in filenames:
-                # print(dirpath, dirnames, filename)
-                local_path = os.path.join(dirpath, filename).replace(zip_path, "")
-
-                # TODO: Fix local directory in zip
-                file_path = os.path.join(target_dir, local_path)
+                # Acquire the source path
+                src_path = os.path.join(dirpath, filename)
+                # Determine the output path
+                local_path = src_path.replace(ACTIVE_PATH, "")
 
                 # Add each file to the ZIP archive
-                zip_file.write(file_path, filename)
+                zip_file.write(src_path, local_path)
 
-    logger.info(f"Files compressed into: %s", zip_filename)
+    logger.info("Files compressed into: %s", zip_filename)
 
     return True
 
