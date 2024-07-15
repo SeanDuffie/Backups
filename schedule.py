@@ -6,10 +6,7 @@ import datetime
 import logging
 import threading
 
-import logFormat
-
 ### LOGGING SECTION ###
-logFormat.format_logs(logger_name="BACKUP")
 logger = logging.getLogger("BACKUP")
 
 class Scheduler(threading.Timer):

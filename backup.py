@@ -4,11 +4,7 @@
 """
 import logging
 import os
-# import shutil
 import zipfile
-from tkinter import filedialog
-
-import logFormat
 
 ### PATH SECTION ###
 DEFAULT_PATH = os.path.dirname(__file__)
@@ -20,79 +16,87 @@ if not os.path.isdir(BACKUP_PATH):
     os.mkdir(BACKUP_PATH)
 
 ### LOGGING SECTION ###
-logFormat.format_logs(logger_name="BACKUP")
 logger = logging.getLogger("BACKUP")
 
 # def is_changed(path: str):
     
 #     pass
 
-def backup(zip_filename: str, target_dir: str = None, zip_path: str = None):
-    """ Compresses the active directory into a zip archive that can be accessed later.
+class Pipeline:
+    def __init__(self, proj_dir: str = ACTIVE_PATH, back_dir: str = BACKUP_PATH, name: str = "bak"):
+        self.proj_dir = proj_dir
+        self.back_dir = back_dir
+        self.name = name
+        if not os.path.exists(os.path.join(back_dir, name)):
+            os.mkdir(os.path.join(back_dir, name))
 
-    Args:
-        target_dir (str): Path of directory containing the files to compress
-        destination (str): Path of output ZIP archive
+    def backup(self, zip_filename: str, target_dir: str = None, zip_path: str = None):
+        """ Compresses the active directory into a zip archive that can be accessed later.
 
-    Returns:
-        bool: Success?
-    """
-    if target_dir is None:
-        target_dir = ACTIVE_PATH
-    if zip_path is None:
-        zip_path = f"{BACKUP_PATH}/{zip_filename}.zip"
+        Args:
+            target_dir (str): Path of directory containing the files to compress
+            destination (str): Path of output ZIP archive
 
-    # Validity Checks
-    assert os.path.isdir(target_dir)
+        Returns:
+            bool: Success?
+        """
+        if self.proj_dir is None:
+            self.proj_dir = ACTIVE_PATH
+        if zip_path is None:
+            zip_path = f"{BACKUP_PATH}/{zip_filename}.zip"
 
-    # Open Zipfile for writing
-    with zipfile.ZipFile(zip_path, 'w') as zip_file:
-        # Iterate over the files in the directory
-        for dirpath, _, filenames in os.walk(target_dir):
-            for filename in filenames:
-                # Acquire the source path
-                src_path = os.path.join(dirpath, filename)
-                # Determine the output path
-                local_path = src_path.replace(ACTIVE_PATH, "")
+        # Validity Checks
+        assert os.path.isdir(self.proj_dir)
 
-                # Add each file to the ZIP archive
-                zip_file.write(src_path, local_path)
+        # Open Zipfile for writing
+        with zipfile.ZipFile(zip_path, 'w') as zip_file:
+            # Iterate over the files in the directory
+            for dirpath, _, filenames in os.walk(self.proj_dir):
+                for filename in filenames:
+                    # Acquire the source path
+                    src_path = os.path.join(dirpath, filename)
+                    # Determine the output path
+                    local_path = src_path.replace(ACTIVE_PATH, "")
 
-    logger.info("Files compressed into: (%s) from (%s)", zip_path, target_dir)
+                    # Add each file to the ZIP archive
+                    zip_file.write(src_path, local_path)
 
-    return True
+        logger.info("Files compressed into: (%s) from (%s)", zip_path, self.proj_dir)
 
-def restore(zip_filename: str, target_dir: str = None, zip_path: str = None):
-    """ Restores a zip archive to the working directory.
+        return True
 
-    Args:
-        zip_filename (str): Path and filename of the zipfile archive.
-        target_dir (str): Path where the zip file will be extracted to.
+    def restore(zip_filename: str, target_dir: str = None, zip_path: str = None):
+        """ Restores a zip archive to the working directory.
 
-    Returns:
-        bool: Success?
-    """
-    if target_dir is None:
-        target_dir = ACTIVE_PATH
-    if zip_path is None:
-        zip_path = f"{BACKUP_PATH}/{zip_filename}.zip"
+        Args:
+            zip_filename (str): Path and filename of the zipfile archive.
+            target_dir (str): Path where the zip file will be extracted to.
 
-    # Validity Checks
-    print(f"{target_dir=}")
-    assert os.path.isdir(target_dir)
-    print(f"{zip_path=}")
-    assert os.path.exists(zip_path)
+        Returns:
+            bool: Success?
+        """
+        if target_dir is None:
+            target_dir = ACTIVE_PATH
+        if zip_path is None:
+            zip_path = f"{BACKUP_PATH}/{zip_filename}.zip"
 
-    # Open Zipfile for reading
-    with zipfile.ZipFile(zip_path, 'r') as zip_file:
-        zip_file.extractall(target_dir)
+        # Validity Checks
+        print(f"{target_dir=}")
+        assert os.path.isdir(target_dir)
+        print(f"{zip_path=}")
+        assert os.path.exists(zip_path)
 
-    logger.info("Files extracted from: (%s) to (%s)", zip_path, target_dir)
+        # Open Zipfile for reading
+        with zipfile.ZipFile(zip_path, 'r') as zip_file:
+            zip_file.extractall(target_dir)
 
-    return True
+        logger.info("Files extracted from: (%s) to (%s)", zip_path, target_dir)
+
+        return True
 
 if __name__ == "__main__":
     # proj = filedialog.askdirectory()
     name = input("What to name the backup?")
-    backup(name)
-    restore(name, f"{DEFAULT_PATH}/restore/")
+    p = Pipeline()
+    p.backup(name)
+    p.restore(name, f"{DEFAULT_PATH}/restore/")
