@@ -39,37 +39,10 @@ class Scheduler(threading.Timer):
             prev = self.tprev
         if interval is None:
             interval = self.invl
-        # if interval > datetime.timedelta(seconds=86399):
-        #     # If the program is started in the morning between 12AM and 6AM, round next time down
-        #     if prev.hour < 6:
-        #         day = prev.day
-        #     # Otherwise, round next time up
-        #     else:
-        #         day = prev.day + interval.days
 
-        #     # Always back up at the next 6AM occurrence.
-        #     nxt = datetime.datetime(
-        #         year=prev.year,
-        #         month=prev.month,
-        #         day=day,
-        #         hour=6,
-        #         minute=0,
-        #         second=0,
-        #         microsecond=0
-        #     )
-        # else:
-        #     # Always back up at the top of the next hour
-        #     nxt = datetime.datetime(
-        #         year=prev.year,
-        #         month=prev.month,
-        #         day=prev.day + interval.days,
-        #         hour=(prev.hour + (interval.seconds // 3600)) % 24,
-        #         minute=0,
-        #         second=0,
-        #         microsecond=0
-        #     )
         nxt = prev + interval
         logger.info("Next %s Backup time is at %s (currently %s)", *self.args, nxt, datetime.datetime.now())
+
         return nxt
 
     def get_remaining(self):
@@ -78,7 +51,7 @@ class Scheduler(threading.Timer):
         Returns:
             datetime.timedelta: Amount of time remaining before next backup.
         """
-        return self.tnext - self.tprev
+        return self.tnext - datetime.datetime.now()
 
     def run(self):
         """ Function callback that is launched whenever the Scheduler thread is started. """
