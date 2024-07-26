@@ -87,8 +87,6 @@ class Pipeline:
             bool: Success?
         """
         # Validity Checks
-        # TODO: Replace this with a more automated method
-        # assert os.path.exists(os.path.join(self.zip_dir, zip_name))
         try:
             zip_path = os.path.join(self.zip_dir, zip_name)
             assert os.path.exists(zip_path)
