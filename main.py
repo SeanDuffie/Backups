@@ -2,6 +2,7 @@
     @author Sean Duffie
     @brief 
 """
+import datetime
 import logging
 import os
 from tkinter import filedialog
@@ -65,14 +66,22 @@ if __name__ == "__main__":
 
     try:
         while True:
-            inp = input("Backup?")
-            if inp == "restore":
+            inp = int(input("Terminal interface:\n\t(0) Manual Backup\n\t(1) Restore Backup\n\t(2) Check Time Remaining\n"))
+            if inp == 0:
+                logger.info("Terminal User manually initiated backup...")
+                P.backup()
+            elif inp == 1:
+                logger.info("Terminal User manually initiated restore...")
+                logger.warning("If Tkinter window doesn't pop up then go to Task Manager -> Python -> Select Zip -> Bring to Front")
                 restore_name = filedialog.askopenfilename(
                     initialdir=BACKUP_PATH,
                     title="Select Zip",
                     filetypes=[('Compressed Files', '*.zip')]
                 )
                 P.restore(restore_name)
-            P.backup()
+            elif inp == 2:
+                logger.warning("Time Remaining: %s", TMR.next_time() - datetime.datetime.now())
+            else:
+                logger.error("Unrecognized Terminal Command Number!")
     except KeyboardInterrupt:
         kill(TMR)
