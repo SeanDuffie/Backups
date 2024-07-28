@@ -1,6 +1,6 @@
 """ @file schedule.py
     @author Sean Duffie
-    @brief 
+    @brief Scheduler thread wrapper class that runs the backup function on every interval
 """
 import datetime
 import logging
@@ -10,10 +10,10 @@ import threading
 logger = logging.getLogger("BACKUP")
 
 class Scheduler(threading.Timer):
-    """_summary_
+    """ Manages the frequency and intervals of calls to the backup function.
+    Construct one for each interval by passing in the amount of 
 
-    Args:
-        threading (_type_): _description_
+    Inherits from the threading.Timer class
     """
     def __init__(self, interval, function, args=None, kwargs=None):
         threading.Timer.__init__(self, interval, function, args, kwargs)
@@ -33,7 +33,7 @@ class Scheduler(threading.Timer):
             interval (datetime.timedelta): Seconds in between actions.
 
         Returns:
-            _type_: _description_
+            datetime.datetime: Timestamp of the next run
         """
         if prev is None:
             prev = self.tprev
