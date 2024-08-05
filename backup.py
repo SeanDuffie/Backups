@@ -6,7 +6,6 @@ import logging
 import os
 # import shutil
 import zipfile
-from tkinter import filedialog
 
 import logFormat
 
@@ -24,7 +23,6 @@ logFormat.format_logs(logger_name="BACKUP")
 logger = logging.getLogger("BACKUP")
 
 # def is_changed(path: str):
-    
 #     pass
 
 def backup(zip_filename: str, target_dir: str = None, zip_path: str = None):

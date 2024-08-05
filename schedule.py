@@ -13,10 +13,10 @@ logFormat.format_logs(logger_name="BACKUP")
 logger = logging.getLogger("BACKUP")
 
 class Scheduler(threading.Timer):
-    """_summary_
+    """ Manages the frequency and intervals of calls to the backup function.
+    Construct one for each interval by passing in the amount of 
 
-    Args:
-        threading (_type_): _description_
+    Inherits from the threading.Timer class
     """
     def __init__(self, interval, function, args=None, kwargs=None):
         threading.Timer.__init__(self, interval, function, args, kwargs)
@@ -26,17 +26,21 @@ class Scheduler(threading.Timer):
         self.invl = datetime.timedelta(seconds=self.interval)
         self.tnext = self.next_time(self.start_time, self.invl)
 
-        logger.warning("Seconds until First %s Backup: %s", *self.args, (self.tnext - self.tprev).total_seconds())
+        logger.warning(
+            "Seconds until First %s Backup: %s",
+            *self.args,
+            (self.tnext - self.tprev).total_seconds()
+        )
 
     def next_time(self, prev: datetime.datetime, interval: datetime.timedelta):
         """ Calculates the next timestamp that "run" will be active.
 
         Args:
-            prev (datetime.datetime): Last timestamp
-            interval (datetime.timedelta): _description_
+            prev (datetime.datetime): Timestamp of last action.
+            interval (datetime.timedelta): Seconds in between actions.
 
         Returns:
-            _type_: _description_
+            datetime.datetime: Timestamp of the next run.
         """
         if interval > datetime.timedelta(seconds=86399):
             # If the program is started in the morning between 12AM and 6AM, round next time down
@@ -67,7 +71,12 @@ class Scheduler(threading.Timer):
                 second=0,
                 microsecond=0
             )
-        logger.info("Next %s Backup time is at %s (currently %s)", *self.args, nxt, datetime.datetime.now())
+        logger.info(
+            "Next %s Backup time is at %s (currently %s)",
+            *self.args,
+            nxt,
+            datetime.datetime.now()
+        )
         return nxt
 
     def get_remaining(self):
@@ -76,7 +85,7 @@ class Scheduler(threading.Timer):
         Returns:
             datetime.timedelta: Amount of time remaining before next backup.
         """
-        return self.tnext - self.tprev
+        return self.tnext - datetime.datetime.now()
 
     def run(self):
         """ Function callback that is launched whenever the Scheduler thread is started. """
