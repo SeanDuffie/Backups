@@ -4,10 +4,8 @@
 """
 import logging
 import os
-# import shutil
+import shutil
 import zipfile
-
-import logFormat
 
 ### PATH SECTION ###
 DEFAULT_PATH = os.path.dirname(__file__)
@@ -19,7 +17,6 @@ if not os.path.isdir(BACKUP_PATH):
     os.mkdir(BACKUP_PATH)
 
 ### LOGGING SECTION ###
-logFormat.format_logs(logger_name="BACKUP")
 logger = logging.getLogger("BACKUP")
 
 # def is_changed(path: str):

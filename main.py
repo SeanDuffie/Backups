@@ -2,7 +2,7 @@
     @author Sean Duffie
     @brief 
 """
-from backup import backup
-from schedule import Scheduler
+from pipeline import Pipeline
+from scheduler import Scheduler
 
 

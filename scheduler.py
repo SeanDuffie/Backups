@@ -1,15 +1,15 @@
-""" @file schedule.py
+""" @file scheduler.py
     @author Sean Duffie
-    @brief 
+    @brief Scheduler thread wrapper class that runs the backup function on every interval
 """
 import datetime
 import logging
 import threading
 
-import logFormat
+import log_format
 
 ### LOGGING SECTION ###
-logFormat.format_logs(logger_name="BACKUP")
+log_format.format_logs(logger_name="BACKUP")
 logger = logging.getLogger("BACKUP")
 
 class Scheduler(threading.Timer):
