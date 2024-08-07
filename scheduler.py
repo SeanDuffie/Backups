@@ -21,10 +21,10 @@ class Scheduler(threading.Timer):
     def __init__(self, interval, function, args=None, kwargs=None):
         threading.Timer.__init__(self, interval, function, args, kwargs)
 
-        self.start_time = datetime.datetime.now()
-        self.tprev = self.start_time
         self.invl = datetime.timedelta(seconds=self.interval)
-        self.tnext = self.next_time(self.start_time, self.invl)
+        self.start_time = 0
+        self.tprev = 0
+        self.tnext = 0
 
         logger.warning(
             "Seconds until First %s Backup: %s",
@@ -32,7 +32,7 @@ class Scheduler(threading.Timer):
             (self.tnext - self.tprev).total_seconds()
         )
 
-    def next_time(self, prev: datetime.datetime, interval: datetime.timedelta):
+    def next_time(self):
         """ Calculates the next timestamp that "run" will be active.
 
         Args:
@@ -42,35 +42,7 @@ class Scheduler(threading.Timer):
         Returns:
             datetime.datetime: Timestamp of the next run.
         """
-        if interval > datetime.timedelta(seconds=86399):
-            # If the program is started in the morning between 12AM and 6AM, round next time down
-            if prev.hour < 6:
-                day = prev.day
-            # Otherwise, round next time up
-            else:
-                day = prev.day + interval.days
-
-            # Always back up at the next 6AM occurrence.
-            nxt = datetime.datetime(
-                year=prev.year,
-                month=prev.month,
-                day=day,
-                hour=6,
-                minute=0,
-                second=0,
-                microsecond=0
-            )
-        else:
-            # Always back up at the top of the next hour
-            nxt = datetime.datetime(
-                year=prev.year,
-                month=prev.month,
-                day=prev.day + interval.days,
-                hour=(prev.hour + (interval.seconds // 3600)) % 24,
-                minute=0,
-                second=0,
-                microsecond=0
-            )
+        nxt = self.tprev + self.interval
         logger.info(
             "Next %s Backup time is at %s (currently %s)",
             *self.args,
@@ -89,9 +61,15 @@ class Scheduler(threading.Timer):
 
     def run(self):
         """ Function callback that is launched whenever the Scheduler thread is started. """
+        # Initial timestamps
+        self.start_time = datetime.datetime.now()
+        self.tprev = self.start_time
+        self.tnext = self.next_time()
+
+        # Timer loop
         while not self.finished.wait((self.tnext - self.tprev).total_seconds()):
             self.tprev = self.tnext
-            self.tnext = self.next_time(self.tprev, self.invl)
+            self.tnext = self.next_time()
 
             self.function(*self.args, **self.kwargs)
         logger.info("Scheduler finished.")
